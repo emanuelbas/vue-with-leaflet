@@ -1,5 +1,8 @@
 # vue-with-leaflet
 
+## About this repository
+This is just a basic example of usage for the leaflet library and vuejs
+
 ## Project setup
 ```
 npm install

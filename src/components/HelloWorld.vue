@@ -1,58 +1,101 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+
+  <div style="height: 500px; width: 100%">
+    <div style="height: 200px overflow: auto;">
+      <p>Se ubicó el primer marker en {{ withPopup.lat }}, {{ withPopup.lng }}</p>
+      <p>El centro está en: {{ currentCenter }} y el zoom es: {{ currentZoom }}</p>
+      <button @click="showLongText">
+        Toggle long popup
+      </button>
+      <button @click="showMap = !showMap">
+        Toggle map
+      </button>
+    </div>
+    <l-map
+      v-if="showMap"
+      :zoom="zoom"
+      :center="center"
+      :options="mapOptions"
+      style="height: 80%"
+      @update:center="centerUpdate"
+      @update:zoom="zoomUpdate"
+    >
+      <l-tile-layer
+        :url="url"
+        :attribution="attribution"
+      />
+      <l-marker :lat-lng="withPopup">
+        <l-popup>
+          <div @click="innerClick">
+            Esto es un popup
+            <p v-show="showParagraph">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
+              sed pretium nisl, ut sagittis sapien. Sed vel sollicitudin nisi.
+              Donec finibus semper metus id malesuada.
+            </p>
+          </div>
+        </l-popup>
+      </l-marker>
+      <l-marker :lat-lng="withTooltip">
+        <l-tooltip :options="{ permanent: true, interactive: true }">
+          <div @click="innerClick">
+            Esto es un tooltip
+            <p v-show="showParagraph">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
+              sed pretium nisl, ut sagittis sapien. Sed vel sollicitudin nisi.
+              Donec finibus semper metus id malesuada.
+            </p>
+          </div>
+        </l-tooltip>
+      </l-marker>
+    </l-map>
   </div>
 </template>
 
 <script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
-</script>
+import { latLng } from "leaflet";
+import { LMap, LTileLayer, LMarker, LPopup, LTooltip } from "vue2-leaflet";
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
+export default {
+  name: "Example",
+  components: {
+    LMap,
+    LTileLayer,
+    LMarker,
+    LPopup,
+    LTooltip
+  },
+  data() {
+    return {
+      zoom: 5.5,
+      center: latLng(-36.977297, -58.904511),
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution:
+        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      withPopup: latLng(-36.977297, -58.904511),
+      withTooltip: latLng(-36.977500, -58.904530),
+      currentZoom: 5.5,
+      currentCenter: latLng(-36.977297, -58.904511),
+      showParagraph: false,
+      mapOptions: {
+        zoomSnap: 0.5
+      },
+      showMap: true
+    };
+  },
+  methods: {
+    zoomUpdate(zoom) {
+      this.currentZoom = zoom;
+    },
+    centerUpdate(center) {
+      this.currentCenter = center;
+    },
+    showLongText() {
+      this.showParagraph = !this.showParagraph;
+    },
+    innerClick() {
+      alert("Hiciste click :o");
+    }
+  }
+};
+</script>
